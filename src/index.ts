@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export const STATES = {
   INITIAL: "INITIAL",
@@ -9,7 +9,7 @@ export const STATES = {
 
 const noOp = () => undefined;
 
-export interface useAsyncArgs <A extends any[]=any[], R=any>{
+export interface useAsyncArgs <A extends any[], R=any>{
   fn: (...args: A) => Promise<R>,
   onDone?: (result?: R, ctx?: { args: A}) => void,
   onError?: (error?: unknown, ctx?: { args: A}) => void,
@@ -56,3 +56,79 @@ export const useAsync = <A extends any[]=any[], R=any>({ fn, onDone = noOp, onEr
   return [{ status, data, error, isLoading }, trigger];
 };
 
+// type LastArgs<T extends (...args: any) => any> = Parameters<T> extends [AbortableLifecylce, ...infer LAST] ? LAST : never
+type ParametersExceptFirst<F> = 
+   F extends (arg0: any, ...rest: infer R) => any ? R : never;
+
+type TupleExceptFirst<T> = T extends [AbortableLifecycle, ...rest: infer R] ? R: never;
+
+interface AbortableLifecycle {
+  abortSignal: AbortSignal,
+}
+
+type BaseAsyncFn<B extends any[], R=any> = (...args: B) => Promise<R>
+type CoreAbortableFn<A extends any[], R=any>  = (lc: AbortableLifecycle, ...args: A) => Promise<R>
+type AbortableFn<B extends any[], A extends any[], R=any> = CoreAbortableFn<A, R> extends BaseAsyncFn<B,R> ? CoreAbortableFn<A, R> : never;
+
+type BaseOnDoneFn<B, R> = (result?: R, ctx?: { args: B}) => void
+type CoreOnDoneFn<A extends any[], R> = (result?: R, ctx?: { args: A}) => void
+type AbortableOnDoneFn<B, A extends any[],R> = CoreOnDoneFn<A, R> extends BaseOnDoneFn<B,R> ? CoreOnDoneFn<A, R> : never;
+
+export interface useAbortableAsyncArgs <B extends any[], A extends any[], R=any>{
+  fn: AbortableFn<B,A,R>,
+  onDone?: AbortableOnDoneFn<B,A,R>,
+  onError?: (error?: unknown, ctx?: { args: B}) => void,
+}
+
+export const useAbortableAsync = <
+  B extends [AbortableLifecycle, ...A],
+  A extends any[],
+  R = any
+>({
+  fn,
+  onDone = (() => void 0) as AbortableOnDoneFn<B, A, R>,
+  onError = noOp,
+}: useAbortableAsyncArgs<B, A, R>): [
+  {
+    status: ValueOf<typeof STATES>;
+    error: unknown | null;
+    data: R | null;
+    isLoading: boolean;
+  },
+  {
+    trigger: (...args: A) => Promise<R | undefined>;
+    abort: () => void;
+  }
+] => {
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const [data, asyncTrigger] = useAsync<B, R>({
+    fn,
+    onDone,
+    onError,
+  });
+
+  const trigger = useCallback(
+    (...args: A) => {
+      abortControllerRef.current = new AbortController();
+
+      return asyncTrigger(
+       ...[
+          { abortSignal: abortControllerRef.current.signal },
+          ...args
+        ] as B
+      );
+    },
+    [asyncTrigger]
+  );
+
+  const abort = useCallback(() => {
+    abortControllerRef.current?.abort();
+  }, []);
+
+  useEffect(() => {
+    return abort;
+  }, [abort]);
+
+  return [data, { trigger, abort }];
+};
