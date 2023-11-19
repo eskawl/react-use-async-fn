@@ -6,7 +6,21 @@
     "build": "tsc",
     "test": "jest"
   },
-  "author": "eskawl",
+  "main": "dist/index.js",
+  "repository": {
+    "url": "https://github.com/eskawl/react-use-async-fn"
+  },
+  "keywords": [
+    "react",
+    "react-hooks",
+    "async",
+    "promise",
+    "loading"
+  ],
+  "author": {
+    "name": "Shrutesh Pachineela",
+    "email": "sruteshp@gmail.com"
+  },
   "license": "MIT",
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.4",
