@@ -4,7 +4,9 @@
   "description": "React hook for managing the state of an async function",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint .",
+    "format": "prettier --ignore-path .gitignore --check ."
   },
   "main": "dist/index.js",
   "repository": {
@@ -27,8 +29,14 @@
     "@testing-library/react": "^14.1.2",
     "@types/jest": "^29.5.8",
     "@types/react": "^18.2.37",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "ts-jest": "^29.1.1",
