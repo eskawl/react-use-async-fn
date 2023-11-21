@@ -7,7 +7,7 @@ describe("useAbortableAsync", () => {
       const { result } = renderHook(() =>
         useAbortableAsync({
           fn: async () => 1,
-        })
+        }),
       );
 
       const [bag, { trigger, abort }] = result.current;
@@ -27,7 +27,7 @@ describe("useAbortableAsync", () => {
         useAbortableAsync({
           fn: async () => 1,
           onError: () => void 0,
-        })
+        }),
       );
 
       const [bag, { trigger, abort }] = result.current;
@@ -47,7 +47,7 @@ describe("useAbortableAsync", () => {
         useAbortableAsync({
           fn: async () => 1,
           onDone: () => void 0,
-        })
+        }),
       );
 
       const [bag, { trigger, abort }] = result.current;
@@ -74,7 +74,7 @@ describe("useAbortableAsync", () => {
         useAbortableAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       expect(workFn.mock.calls.length).toBe(0);
@@ -86,7 +86,7 @@ describe("useAbortableAsync", () => {
         useAbortableAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       rerender({
@@ -105,7 +105,7 @@ describe("useAbortableAsync", () => {
         useAbortableAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       const [_, { trigger }] = result.current;
@@ -118,7 +118,7 @@ describe("useAbortableAsync", () => {
       expect(workFn.mock.calls.length).toBe(1);
       expect(workFn.mock.calls.at(0).slice(0, 3)).toStrictEqual([1, 2, 3]);
       expect(workFn.mock.calls.at(0).at(3)?.abortSignal).toBeInstanceOf(
-        AbortSignal
+        AbortSignal,
       );
       expect(asyncResult).toBe("TEST_RETURN");
     });
@@ -133,7 +133,7 @@ describe("useAbortableAsync", () => {
         useAbortableAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       const [_, { trigger, abort }] = result.current;
