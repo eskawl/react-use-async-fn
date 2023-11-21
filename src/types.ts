@@ -47,3 +47,18 @@ export type BasicAbortableAsyncFn = (
   lc: AbortableLifecycle,
   ...args: any[]
 ) => Promise<any>;
+
+export interface useAbortableAsyncArgs<F extends BasicAbortableAsyncFn> {
+  fn: F;
+  onDone?: (
+    result?: Awaited<ReturnType<F>>,
+    ctx?: { args: Parameters<F> },
+  ) => void;
+  onError?: (error?: unknown, ctx?: { args: Parameters<F> }) => void;
+}
+
+export type AbortableAsyncTrigger<F extends BasicAbortableAsyncFn> = (
+  ...args: TupleExceptFirst<Parameters<F>>
+) => Promise<ReturnType<F>>;
+
+export type AbortableAsyncAbort = () => void;
