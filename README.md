@@ -1,5 +1,12 @@
 ## React Use Async Fn
 
+[![BUILD](https://github.com/eskawl/react-use-async-fn/actions/workflows/main.yml/badge.svg)](https://github.com/eskawl/react-use-async-fn/actions/workflows/main.yml)
+[![Coverage Status](https://coveralls.io/repos/github/eskawl/react-use-async-fn/badge.svg?branch=main)](https://coveralls.io/github/eskawl/react-use-async-fn?branch=main)
+![License](https://img.shields.io/github/license/eskawl/react-use-async-fn)
+![npm](https://img.shields.io/npm/v/react-use-async-fn)
+![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/react-use-async-fn)
+
+
 React hook for managing the state of async function and abortable async functions
 
 ### Features
