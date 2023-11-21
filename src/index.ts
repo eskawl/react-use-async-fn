@@ -9,26 +9,56 @@ export const STATES = {
 
 const noOp = () => undefined;
 
-export interface useAsyncArgs <A extends any[], R=any>{
-  fn: (...args: A) => Promise<R>,
-  onDone?: (result?: R, ctx?: { args: A}) => void,
-  onError?: (error?: unknown, ctx?: { args: A}) => void,
-}
-
+/* Util Types */
 type ValueOf<T> = T[keyof T];
 
-export const useAsync = <A extends any[]=any[], R=any>({ fn, onDone = noOp, onError = noOp }: useAsyncArgs<A, R>): [
-  {status: ValueOf<typeof STATES>, error: unknown|null, data: R|null, isLoading: boolean},
-  (...args: A) => Promise<R | undefined>
-] => {
-  const [data, setData] = useState<R|null>(null);
-  const [error, setError] = useState<unknown|null>(null);
+type LastArgs<T extends (...args: any) => any> = Parameters<T> extends [
+  any,
+  ...infer L
+]
+  ? L
+  : never;
+type ParametersExceptFirst<F> = F extends (arg0: any, ...rest: infer R) => any
+  ? R
+  : never;
+
+type TupleExceptFirst<T> = T extends [any, ...rest: infer R] ? R : never;
+
+export type BasicAsyncFn = (...args: any[]) => Promise<any>;
+
+export interface useAsyncArgs<F extends BasicAsyncFn> {
+  fn: F;
+  onDone?: (
+    result: Awaited<ReturnType<F>>,
+    ctx: { args: Parameters<F> }
+  ) => void;
+  onError?: (error: unknown, ctx: { args: Parameters<F> }) => void;
+}
+
+export interface AsyncState<F extends BasicAsyncFn> {
+  status: ValueOf<typeof STATES>;
+  error: unknown | null;
+  data: Awaited<ReturnType<F>> | null;
+  isLoading: boolean;
+}
+
+export type AsyncTrigger<F extends BasicAsyncFn> = (
+  ...args: Parameters<F>
+) => Promise<Awaited<ReturnType<F>>>;
+
+export const useAsync = <F extends BasicAsyncFn>({
+  fn,
+  onDone = noOp,
+  onError = noOp,
+}: useAsyncArgs<F>): [AsyncState<F>, AsyncTrigger<F>] => {
+  const [data, setData] = useState<Awaited<ReturnType<F>> | null>(null);
+  const [error, setError] = useState<unknown | null>(null);
   const [status, setStatus] = useState<ValueOf<typeof STATES>>(STATES.INITIAL);
 
   const isLoading = useMemo(() => status === STATES.WORKING, [status]);
 
   const trigger = useCallback(
-    async (...args: A) => {
+    async (...args: Parameters<F>) => {
       try {
         setStatus(STATES.WORKING);
 
@@ -56,68 +86,84 @@ export const useAsync = <A extends any[]=any[], R=any>({ fn, onDone = noOp, onEr
   return [{ status, data, error, isLoading }, trigger];
 };
 
-// type LastArgs<T extends (...args: any) => any> = Parameters<T> extends [AbortableLifecylce, ...infer LAST] ? LAST : never
-type ParametersExceptFirst<F> = 
-   F extends (arg0: any, ...rest: infer R) => any ? R : never;
-
-type TupleExceptFirst<T> = T extends [AbortableLifecycle, ...rest: infer R] ? R: never;
-
 interface AbortableLifecycle {
-  abortSignal: AbortSignal,
+  abortSignal: AbortSignal;
 }
 
-type BaseAsyncFn<B extends any[], R=any> = (...args: B) => Promise<R>
-type CoreAbortableFn<A extends any[], R=any>  = (lc: AbortableLifecycle, ...args: A) => Promise<R>
-type AbortableFn<B extends any[], A extends any[], R=any> = CoreAbortableFn<A, R> extends BaseAsyncFn<B,R> ? CoreAbortableFn<A, R> : never;
+export type BasicAbortableAsyncFn = (
+  lc: AbortableLifecycle,
+  ...args: any[]
+) => Promise<any>;
 
-type BaseOnDoneFn<B, R> = (result?: R, ctx?: { args: B}) => void
-type CoreOnDoneFn<A extends any[], R> = (result?: R, ctx?: { args: A}) => void
-type AbortableOnDoneFn<B, A extends any[],R> = CoreOnDoneFn<A, R> extends BaseOnDoneFn<B,R> ? CoreOnDoneFn<A, R> : never;
-
-export interface useAbortableAsyncArgs <B extends any[], A extends any[], R=any>{
-  fn: AbortableFn<B,A,R>,
-  onDone?: AbortableOnDoneFn<B,A,R>,
-  onError?: (error?: unknown, ctx?: { args: B}) => void,
+export interface useAbortableAsyncArgs<F extends BasicAbortableAsyncFn> {
+  fn: F;
+  onDone?: (
+    result?: Awaited<ReturnType<F>>,
+    ctx?: { args: TupleExceptFirst<Parameters<F>> }
+  ) => void;
+  onError?: (
+    error?: unknown,
+    ctx?: { args: TupleExceptFirst<Parameters<F>> }
+  ) => void;
 }
 
-export const useAbortableAsync = <
-  B extends [AbortableLifecycle, ...A],
-  A extends any[],
-  R = any
->({
+export const useAbortableAsync = <F extends BasicAbortableAsyncFn>({
   fn,
-  onDone = (() => void 0) as AbortableOnDoneFn<B, A, R>,
+  onDone = () => void 0,
   onError = noOp,
-}: useAbortableAsyncArgs<B, A, R>): [
+}: useAbortableAsyncArgs<F>): [
+  AsyncState<F>,
   {
-    status: ValueOf<typeof STATES>;
-    error: unknown | null;
-    data: R | null;
-    isLoading: boolean;
-  },
-  {
-    trigger: (...args: A) => Promise<R | undefined>;
+    trigger: (
+      ...args: TupleExceptFirst<Parameters<F>>
+    ) => Promise<ReturnType<F>>;
     abort: () => void;
   }
 ] => {
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const [data, asyncTrigger] = useAsync<B, R>({
+  const handleOnDone = useCallback(
+    (result: Awaited<ReturnType<F>>, { args }: { args: Parameters<F> }) => {
+      if (onDone) {
+        return onDone(result, {
+          args: args?.slice(1) as TupleExceptFirst<Parameters<F>>, // Remove the abort signal
+        });
+      }
+    },
+    [onDone]
+  );
+
+  const handleOnError = useCallback(
+    (error: unknown, { args }: { args: Parameters<F> }) => {
+      if (onError) {
+        return onError(error, {
+          args: args?.slice(1) as TupleExceptFirst<Parameters<F>>, // Remove the abort signal
+        });
+      }
+    },
+    [onError]
+  );
+
+  const [data, asyncTrigger] = useAsync<F>({
     fn,
-    onDone,
-    onError,
+    onDone: handleOnDone,
+    onError: handleOnError,
   });
 
   const trigger = useCallback(
-    (...args: A) => {
+    async (...args: TupleExceptFirst<Parameters<F>>) => {
       abortControllerRef.current = new AbortController();
 
-      return asyncTrigger(
-       ...[
-          { abortSignal: abortControllerRef.current.signal },
-          ...args
-        ] as B
+      const result = await asyncTrigger(
+        ...([
+          {
+            abortSignal: abortControllerRef.current.signal,
+          } as AbortableLifecycle,
+          ...args,
+        ] as unknown as Parameters<F>)
       );
+
+      return result;
     },
     [asyncTrigger]
   );
