@@ -6,7 +6,8 @@
     "build": "tsc",
     "test": "jest",
     "lint": "eslint .",
-    "format": "prettier --ignore-path .gitignore --check ."
+    "format": "prettier --ignore-path .gitignore --check .",
+    "format:fix": "prettier --write ."
   },
   "main": "dist/index.js",
   "repository": {

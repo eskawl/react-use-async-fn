@@ -1,6 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
 import { STATUSES } from "./state";
-import { AsyncState, AsyncTrigger, BasicAsyncFn, ValueOf, useAsyncArgs } from "./types";
+import {
+  AsyncState,
+  AsyncTrigger,
+  BasicAsyncFn,
+  ValueOf,
+  useAsyncArgs,
+} from "./types";
 
 export const noOp = () => undefined;
 
@@ -11,7 +17,9 @@ export const useAsync = <F extends BasicAsyncFn>({
 }: useAsyncArgs<F>): [AsyncState<F>, AsyncTrigger<F>] => {
   const [data, setData] = useState<Awaited<ReturnType<F>> | null>(null);
   const [error, setError] = useState<unknown | null>(null);
-  const [status, setStatus] = useState<ValueOf<typeof STATUSES>>(STATUSES.INITIAL);
+  const [status, setStatus] = useState<ValueOf<typeof STATUSES>>(
+    STATUSES.INITIAL,
+  );
 
   const isLoading = useMemo(() => status === STATUSES.WORKING, [status]);
 
@@ -38,7 +46,7 @@ export const useAsync = <F extends BasicAsyncFn>({
         return;
       }
     },
-    [fn, onDone, onError]
+    [fn, onDone, onError],
   );
 
   return [{ status, data, error, isLoading }, trigger];

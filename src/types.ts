@@ -5,15 +5,17 @@ import { STATUSES } from "./state";
 export type ValueOf<T> = T[keyof T];
 export type LastArgs<T extends (...args: any) => any> = Parameters<T> extends [
   any,
-  ...infer L
+  ...infer L,
 ]
   ? L
   : never;
-export type ParametersExceptFirst<F> = F extends (arg0: any, ...rest: infer R) => any
+export type ParametersExceptFirst<F> = F extends (
+  arg0: any,
+  ...rest: infer R
+) => any
   ? R
   : never;
 export type TupleExceptFirst<T> = T extends [any, ...rest: infer R] ? R : never;
-
 
 export type BasicAsyncFn = (...args: any[]) => Promise<any>;
 
@@ -21,7 +23,7 @@ export interface useAsyncArgs<F extends BasicAsyncFn> {
   fn: F;
   onDone?: (
     result: Awaited<ReturnType<F>>,
-    ctx: { args: Parameters<F> }
+    ctx: { args: Parameters<F> },
   ) => void;
   onError?: (error: unknown, ctx: { args: Parameters<F> }) => void;
 }

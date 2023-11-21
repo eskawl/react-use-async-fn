@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useRef } from "react";
-import { AbortableLifecycle, AsyncState, BasicAbortableAsyncFn, TupleExceptFirst } from "./types";
+import {
+  AbortableLifecycle,
+  AsyncState,
+  BasicAbortableAsyncFn,
+  TupleExceptFirst,
+} from "./types";
 import { noOp, useAsync } from "./async";
 
 export interface useAbortableAsyncArgs<F extends BasicAbortableAsyncFn> {
   fn: F;
   onDone?: (
     result?: Awaited<ReturnType<F>>,
-    ctx?: { args: Parameters<F> }
+    ctx?: { args: Parameters<F> },
   ) => void;
-  onError?: (
-    error?: unknown,
-    ctx?: { args: Parameters<F> }
-  ) => void;
+  onError?: (error?: unknown, ctx?: { args: Parameters<F> }) => void;
 }
 
 export const useAbortableAsync = <F extends BasicAbortableAsyncFn>({
@@ -25,7 +27,7 @@ export const useAbortableAsync = <F extends BasicAbortableAsyncFn>({
       ...args: TupleExceptFirst<Parameters<F>>
     ) => Promise<ReturnType<F>>;
     abort: () => void;
-  }
+  },
 ] => {
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -45,12 +47,12 @@ export const useAbortableAsync = <F extends BasicAbortableAsyncFn>({
             abortSignal: abortControllerRef.current?.signal,
           } as AbortableLifecycle,
           ...args,
-        ] as unknown as Parameters<F>)
+        ] as unknown as Parameters<F>),
       );
 
       return result;
     },
-    [asyncTrigger]
+    [asyncTrigger],
   );
 
   const abort = useCallback(() => {

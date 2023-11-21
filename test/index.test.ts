@@ -7,7 +7,7 @@ describe("useAsync", () => {
       const { result } = renderHook(() =>
         useAsync({
           fn: async () => 1,
-        })
+        }),
       );
 
       const [bag, trigger] = result.current;
@@ -26,7 +26,7 @@ describe("useAsync", () => {
         useAsync({
           fn: async () => 1,
           onError: () => void 0,
-        })
+        }),
       );
 
       const [bag, trigger] = result.current;
@@ -45,7 +45,7 @@ describe("useAsync", () => {
         useAsync({
           fn: async () => 1,
           onDone: () => void 0,
-        })
+        }),
       );
 
       const [bag, trigger] = result.current;
@@ -71,7 +71,7 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       expect(workFn.mock.calls.length).toBe(0);
@@ -83,7 +83,7 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       rerender({
@@ -100,7 +100,7 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       const [_, trigger] = result.current;
@@ -124,13 +124,13 @@ describe("useAsync", () => {
       const workFn = jest
         .fn()
         .mockImplementation(
-          () => new Promise((r) => setTimeout(() => r("TEST_RESULT"), 1000))
+          () => new Promise((r) => setTimeout(() => r("TEST_RESULT"), 1000)),
         );
 
       const { result } = renderHook(() =>
         useAsync({
           fn: workFn,
-        })
+        }),
       );
 
       let [{ status, isLoading }] = result.current;
@@ -173,7 +173,7 @@ describe("useAsync", () => {
       const { result } = renderHook(() =>
         useAsync({
           fn: workFn,
-        })
+        }),
       );
 
       const [_bag, trigger] = result.current;
@@ -196,7 +196,7 @@ describe("useAsync", () => {
       const { result } = renderHook(() =>
         useAsync({
           fn: workFn,
-        })
+        }),
       );
 
       const [_bag, trigger] = result.current;
@@ -222,7 +222,7 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onDone,
-        })
+        }),
       );
 
       const [_bag, trigger] = result.current;
@@ -255,7 +255,7 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onError,
-        })
+        }),
       );
 
       const [_bag, trigger] = result.current;

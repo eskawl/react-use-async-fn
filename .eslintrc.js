@@ -30,12 +30,12 @@ module.exports = {
     // Disable base config that may casuse erros
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [
-        "error", // or "error"
-        { 
-            "argsIgnorePattern": "^_",
-            "varsIgnorePattern": "^_",
-            "caughtErrorsIgnorePattern": "^_"
-        }
+      "error", // or "error"
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      },
     ],
   },
   ignorePatterns: ["dist/**/*.*", "jest.config.js"],
