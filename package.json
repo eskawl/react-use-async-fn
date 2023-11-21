@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "React hook for managing the state of an async function",
   "scripts": {
-    "build": "tsc",
+    "compile": "tsc",
+    "minify": "esbuild dist/index.js --bundle --minify --sourcemap --outfile=dist/index.min.js",
+    "build": "yarn compile && yarn minify",
     "test": "jest",
     "coverage": "jest --coverage",
     "lint": "eslint .",
@@ -33,6 +35,7 @@
     "@types/react": "^18.2.37",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",
+    "esbuild": "^0.19.7",
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-react-hooks": "^4.6.0",
