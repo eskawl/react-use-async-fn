@@ -45,10 +45,7 @@ export interface AbortableLifecycle {
 }
 
 export type BasicAbortableAsyncFn = (
-  ...args: [
-    ...any[],
-    AbortableLifecycle,
-  ]
+  ...args: [...any[], AbortableLifecycle]
 ) => Promise<any>;
 
 export interface useAbortableAsyncArgs<F extends BasicAbortableAsyncFn> {
