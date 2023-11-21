@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { useAsync, STATES } from "../src";
+import { useAsync, STATUSES } from "../src";
 
 describe("useAsync", () => {
   describe("optional args", () => {
@@ -7,7 +7,7 @@ describe("useAsync", () => {
       const { result } = renderHook(() =>
         useAsync({
           fn: async () => 1,
-        })
+        }),
       );
 
       const [bag, trigger] = result.current;
@@ -18,7 +18,7 @@ describe("useAsync", () => {
       const { data, error, status, isLoading } = bag;
       expect(data).toBe(null);
       expect(error).toBe(null);
-      expect(status).toBe(STATES.INITIAL);
+      expect(status).toBe(STATUSES.INITIAL);
       expect(isLoading).toBe(false);
     });
     it("should work without onDone", () => {
@@ -26,7 +26,7 @@ describe("useAsync", () => {
         useAsync({
           fn: async () => 1,
           onError: () => void 0,
-        })
+        }),
       );
 
       const [bag, trigger] = result.current;
@@ -37,7 +37,7 @@ describe("useAsync", () => {
       const { data, error, status, isLoading } = bag;
       expect(data).toBe(null);
       expect(error).toBe(null);
-      expect(status).toBe(STATES.INITIAL);
+      expect(status).toBe(STATUSES.INITIAL);
       expect(isLoading).toBe(false);
     });
     it("should work without onError", () => {
@@ -45,7 +45,7 @@ describe("useAsync", () => {
         useAsync({
           fn: async () => 1,
           onDone: () => void 0,
-        })
+        }),
       );
 
       const [bag, trigger] = result.current;
@@ -56,7 +56,7 @@ describe("useAsync", () => {
       const { data, error, status, isLoading } = bag;
       expect(data).toBe(null);
       expect(error).toBe(null);
-      expect(status).toBe(STATES.INITIAL);
+      expect(status).toBe(STATUSES.INITIAL);
       expect(isLoading).toBe(false);
     });
   });
@@ -71,7 +71,7 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       expect(workFn.mock.calls.length).toBe(0);
@@ -83,7 +83,7 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
       rerender({
@@ -100,10 +100,10 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onDone: () => void 0,
-        })
+        }),
       );
 
-      const [bag, trigger] = result.current;
+      const [_, trigger] = result.current;
 
       let asyncResult;
       await act(async () => {
@@ -124,18 +124,19 @@ describe("useAsync", () => {
       const workFn = jest
         .fn()
         .mockImplementation(
-          () => new Promise((r) => setTimeout(() => r("TEST_RESULT"), 1000))
+          () => new Promise((r) => setTimeout(() => r("TEST_RESULT"), 1000)),
         );
 
       const { result } = renderHook(() =>
         useAsync({
           fn: workFn,
-        })
+        }),
       );
 
-      let [{ status, isLoading }, trigger] = result.current;
+      let [{ status, isLoading }] = result.current;
+      const [_, trigger] = result.current;
 
-      expect(status).toBe(STATES.INITIAL);
+      expect(status).toBe(STATUSES.INITIAL);
       expect(isLoading).toBe(false);
 
       await act(async () => {
@@ -143,13 +144,13 @@ describe("useAsync", () => {
       });
 
       [{ status, isLoading }] = result.current;
-      expect(status).toBe(STATES.WORKING);
+      expect(status).toBe(STATUSES.WORKING);
       expect(isLoading).toBe(true);
 
       jest.advanceTimersByTime(500);
 
       [{ status, isLoading }] = result.current;
-      expect(status).toBe(STATES.WORKING);
+      expect(status).toBe(STATUSES.WORKING);
       expect(isLoading).toBe(true);
 
       jest.advanceTimersByTime(1500);
@@ -161,7 +162,7 @@ describe("useAsync", () => {
       });
 
       [{ status, isLoading }] = result.current;
-      expect(status).toBe(STATES.DONE);
+      expect(status).toBe(STATUSES.DONE);
       expect(isLoading).toBe(false);
 
       jest.useRealTimers();
@@ -172,10 +173,10 @@ describe("useAsync", () => {
       const { result } = renderHook(() =>
         useAsync({
           fn: workFn,
-        })
+        }),
       );
 
-      let [bag, trigger] = result.current;
+      const [_bag, trigger] = result.current;
 
       await act(async () => {
         trigger(1, 2, 3);
@@ -195,10 +196,10 @@ describe("useAsync", () => {
       const { result } = renderHook(() =>
         useAsync({
           fn: workFn,
-        })
+        }),
       );
 
-      let [bag, trigger] = result.current;
+      const [_bag, trigger] = result.current;
 
       await act(async () => {
         trigger(1, 2, 3);
@@ -221,10 +222,10 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onDone,
-        })
+        }),
       );
 
-      let [bag, trigger] = result.current;
+      const [_bag, trigger] = result.current;
 
       await act(async () => {
         trigger(1, 2, 3);
@@ -254,10 +255,10 @@ describe("useAsync", () => {
         useAsync({
           fn: workFn,
           onError,
-        })
+        }),
       );
 
-      let [bag, trigger] = result.current;
+      const [_bag, trigger] = result.current;
 
       await act(async () => {
         trigger(1, 2, 3);
