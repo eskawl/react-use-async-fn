@@ -1,0 +1,6 @@
+export const STATES = {
+  INITIAL: "INITIAL",
+  WORKING: "WORKING",
+  DONE: "DONE",
+  FAILED: "FAILED",
+};
