@@ -23,7 +23,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Test
-        run: yarn test --ci --coverage
+        run: yarn coverage --ci
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
