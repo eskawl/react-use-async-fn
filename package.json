@@ -5,8 +5,9 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
+    "coverage": "jest --coverage",
     "lint": "eslint .",
-    "format": "prettier --ignore-path .gitignore --check .",
+    "format": "prettier --check .",
     "format:fix": "prettier --write ."
   },
   "main": "dist/index.js",

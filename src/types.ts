@@ -16,6 +16,7 @@ export type ParametersExceptFirst<F> = F extends (
   ? R
   : never;
 export type TupleExceptFirst<T> = T extends [any, ...rest: infer R] ? R : never;
+export type TupleExceptLast<T> = T extends [...first: infer F, any] ? F : never;
 
 export type BasicAsyncFn = (...args: any[]) => Promise<any>;
 
@@ -44,8 +45,10 @@ export interface AbortableLifecycle {
 }
 
 export type BasicAbortableAsyncFn = (
-  lc: AbortableLifecycle,
-  ...args: any[]
+  ...args: [
+    ...any[],
+    AbortableLifecycle,
+  ]
 ) => Promise<any>;
 
 export interface useAbortableAsyncArgs<F extends BasicAbortableAsyncFn> {
@@ -58,7 +61,13 @@ export interface useAbortableAsyncArgs<F extends BasicAbortableAsyncFn> {
 }
 
 export type AbortableAsyncTrigger<F extends BasicAbortableAsyncFn> = (
-  ...args: TupleExceptFirst<Parameters<F>>
+  ...args: TupleExceptLast<Parameters<F>>
 ) => Promise<ReturnType<F>>;
 
 export type AbortableAsyncAbort = () => void;
+
+// const _f1: BasicAbortableAsyncFn = async (a: number, b: string, _lc: AbortableLifecycle) => {
+//   return a+b;
+// }
+
+// const _f2: BasicAsyncFn = _f1;

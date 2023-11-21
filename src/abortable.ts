@@ -4,17 +4,17 @@ import {
   AbortableAsyncTrigger,
   AbortableLifecycle,
   AsyncState,
-  BasicAbortableAsyncFn,
-  TupleExceptFirst,
-  useAbortableAsyncArgs,
+  BasicAsyncFn,
+  TupleExceptLast,
+  useAsyncArgs,
 } from "./types";
 import { noOp, useAsync } from "./async";
 
-export const useAbortableAsync = <F extends BasicAbortableAsyncFn>({
+export const useAbortableAsync = <F extends BasicAsyncFn>({
   fn,
   onDone = noOp,
   onError = noOp,
-}: useAbortableAsyncArgs<F>): [
+}: useAsyncArgs<F>): [
   AsyncState<F>,
   {
     trigger: AbortableAsyncTrigger<F>;
@@ -30,15 +30,15 @@ export const useAbortableAsync = <F extends BasicAbortableAsyncFn>({
   });
 
   const trigger = useCallback(
-    async (...args: TupleExceptFirst<Parameters<F>>) => {
+    async (...args: TupleExceptLast<Parameters<F>>) => {
       abortControllerRef.current = new AbortController();
 
       const result = await asyncTrigger(
         ...([
+          ...args,
           {
             abortSignal: abortControllerRef.current?.signal,
           } as AbortableLifecycle,
-          ...args,
         ] as unknown as Parameters<F>),
       );
 
