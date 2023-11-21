@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { STATES } from "./state";
+import { STATUSES } from "./state";
 import { AsyncState, AsyncTrigger, BasicAsyncFn, ValueOf, useAsyncArgs } from "./types";
 
 export const noOp = () => undefined;
@@ -11,19 +11,19 @@ export const useAsync = <F extends BasicAsyncFn>({
 }: useAsyncArgs<F>): [AsyncState<F>, AsyncTrigger<F>] => {
   const [data, setData] = useState<Awaited<ReturnType<F>> | null>(null);
   const [error, setError] = useState<unknown | null>(null);
-  const [status, setStatus] = useState<ValueOf<typeof STATES>>(STATES.INITIAL);
+  const [status, setStatus] = useState<ValueOf<typeof STATUSES>>(STATUSES.INITIAL);
 
-  const isLoading = useMemo(() => status === STATES.WORKING, [status]);
+  const isLoading = useMemo(() => status === STATUSES.WORKING, [status]);
 
   const trigger = useCallback(
     async (...args: Parameters<F>) => {
       try {
-        setStatus(STATES.WORKING);
+        setStatus(STATUSES.WORKING);
 
         const result = await fn(...args);
 
         setData(result);
-        setStatus(STATES.DONE);
+        setStatus(STATUSES.DONE);
         onDone(result, {
           args,
         });
@@ -31,7 +31,7 @@ export const useAsync = <F extends BasicAsyncFn>({
       } catch (error) {
         setData(null);
         setError(error);
-        setStatus(STATES.FAILED);
+        setStatus(STATUSES.FAILED);
         onError(error, {
           args,
         });

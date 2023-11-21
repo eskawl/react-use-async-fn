@@ -1,6 +1,6 @@
-export const STATES = {
-  INITIAL: "INITIAL",
-  WORKING: "WORKING",
-  DONE: "DONE",
-  FAILED: "FAILED",
-};
+export enum STATUSES {
+  INITIAL = "INITIAL",
+  WORKING = "WORKING",
+  DONE = "DONE",
+  FAILED = "FAILED",
+}

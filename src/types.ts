@@ -1,4 +1,4 @@
-import { STATES } from "./state";
+import { STATUSES } from "./state";
 
 /* Util Types */
 export type ValueOf<T> = T[keyof T];
@@ -26,7 +26,7 @@ export interface useAsyncArgs<F extends BasicAsyncFn> {
 }
 
 export interface AsyncState<F extends BasicAsyncFn> {
-  status: ValueOf<typeof STATES>;
+  status: ValueOf<typeof STATUSES>;
   error: unknown | null;
   data: Awaited<ReturnType<F>> | null;
   isLoading: boolean;
